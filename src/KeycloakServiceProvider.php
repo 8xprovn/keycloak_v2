@@ -52,9 +52,9 @@ class KeycloakServiceProvider extends ServiceProvider
         });
 
         // Facades
-        // $this->app->bind('keycloak-web', function($app) {
-        //     return $app->make(KeycloakService::class);
-        // });
+        $this->app->bind('keycloak-web', function($app) {
+            return $app->make(KeycloakService::class);
+        });
 
         // Routes
         $this->registerRoutes();
