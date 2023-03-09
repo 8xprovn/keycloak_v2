@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Cookie;
 use Keycloak\Auth\Guard\KeycloakWebGuard;
 use Firebase\JWT\JWT;
-use Microservices\models\Hr;
+use Microservices\models\Hr\Employees;
 
 class KeycloakService
 {
@@ -267,7 +267,7 @@ class KeycloakService
         if ($userProfile = session()->get(self::KEYCLOAK_SESSION.'user_profile_'.$user['sub'])){
             return $userProfile;
         }
-        $userProfile = (new Hr)->detail($user['sub']);
+        $userProfile = (new Employees)->detail($user['sub']);
         if ($userProfile) {
             $userProfile['user_id'] = $user['sub'];
             session()->put(self::KEYCLOAK_SESSION.'user_profile_'.$user['sub'], $userProfile);
