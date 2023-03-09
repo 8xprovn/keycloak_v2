@@ -21,7 +21,7 @@ class AuthController extends Controller
         //$state =  bin2hex(openssl_random_pseudo_bytes(4));
         $state = \Session::getId();
         \Session::put($state,$preURL);
-        $url = ImapOauth2Web::getLoginUrl($state);
+        $url = KeycloakWeb::getLoginUrl($state);
         return redirect($url);
     }
 
@@ -71,13 +71,13 @@ class AuthController extends Controller
 
         if(empty($state)) return redirect(route('keycloak.logout'));
 
-        $redirectURL = Session::get($state);
+        $redirectURL = \Session::get($state);
         
         if (! empty($code)) {
             $token = KeycloakWeb::getAccessToken($code);
             if (Auth::validate($token)) {
                 //$url = env('ROUTE_PREFIX') ?? '/';
-                Session::forget($state);
+                \Session::forget($state);
                 //return response("OK");
                 return redirect($url);
             }

@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Cookie;
 use Keycloak\Auth\Guard\KeycloakWebGuard;
 use Firebase\JWT\JWT;
+use Microservices\models\Hr;
 
 class KeycloakService
 {
@@ -266,19 +267,12 @@ class KeycloakService
         if ($userProfile = session()->get(self::KEYCLOAK_SESSION.'user_profile_'.$user['sub'])){
             return $userProfile;
         }
-        $userProfile = $this->retrieveProfile($credentials);
+        $userProfile = (new Hr)->detail($user['sub']);
         if ($userProfile) {
             $userProfile['user_id'] = $user['sub'];
             session()->put(self::KEYCLOAK_SESSION.'user_profile_'.$user['sub'], $userProfile);
         }
         return $userProfile;
-    }
-    public function retrieveProfile($token) {
-        $response = \Http::withToken($token['access_token'])->get(env('API_MICROSERVICE_URL').'/hr/employees/me');
-        if ($response->successful()) {
-            return $response->json();
-        }
-        return false;
     }
     /**
      * Get Access Token data
