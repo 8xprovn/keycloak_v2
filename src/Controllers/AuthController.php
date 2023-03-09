@@ -79,7 +79,7 @@ class AuthController extends Controller
                 //$url = env('ROUTE_PREFIX') ?? '/';
                 \Session::forget($state);
                 //return response("OK");
-                return redirect($url);
+                return redirect($redirectURL);
             }
         }
 
