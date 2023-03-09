@@ -114,14 +114,16 @@ class KeycloakService
      *
      * @return string
      */
-    public function getLoginUrl()
+    public function getLoginUrl($state='')
     {
+
         $url = $this->baseUrl.'/oauth/authorize';
         $params = [
             'scope' => '',
             'client_id' => $this->clientId,
             'response_type' => 'code',
             'redirect_uri' => $this->callbackUrl,
+            'state' => $state
         ];
 
         return $this->buildUrl($url, $params);
@@ -349,7 +351,7 @@ class KeycloakService
     public function forgetToken()
     {
         //session()->forget(self::KEYCLOAK_SESSION.'access_token');
-        \Session::invalidate();
+        //\Session::invalidate();
         //setcookie(self::KEYCLOAK_SESSION.'access_token', "", time() - 86400,'/');
         //setcookie(self::KEYCLOAK_SESSION.'refresh_token', "", time() - 86400,'/');
         Cookie::queue(Cookie::forget(self::KEYCLOAK_SESSION.'refresh_token'));
