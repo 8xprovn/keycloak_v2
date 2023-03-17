@@ -267,7 +267,12 @@ class KeycloakService
         if ($userProfile = session()->get(self::KEYCLOAK_SESSION.'user_profile_'.$user['sub'])){
             return $userProfile;
         }
-        $userProfile = (new Employees)->detail($user['sub']);
+        if (config('app.service_code') == 'erp_hr_backend_v2') {
+            $userProfile = (new \App\Models\Hr\Employee)->detail($user['sub']);
+        }
+        else {
+            $userProfile = (new \Microservices\models\Hr\Employees)->detail($user['sub']);
+        }
         if ($userProfile) {
             $userProfile['user_id'] = $user['sub'];
             session()->put(self::KEYCLOAK_SESSION.'user_profile_'.$user['sub'], $userProfile);
