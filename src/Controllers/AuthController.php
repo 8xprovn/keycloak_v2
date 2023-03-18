@@ -17,7 +17,7 @@ class AuthController extends Controller
      */
     public function login()
     {
-        $preURL = \URL::previous();
+        $preURL = url()->current();
         //$state =  bin2hex(openssl_random_pseudo_bytes(4));
         $state = \Session::getId();
         \Session::put($state,$preURL);
