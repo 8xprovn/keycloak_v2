@@ -15,9 +15,12 @@ class AuthController extends Controller
      *
      * @return view
      */
-    public function login()
+    public function login(Request $request)
     {
-        $preURL = \URL::previous();
+        $uri = $request->query('redirect_uri');
+        if (!$uri) {
+            $uri = \URL::previous();
+        }
         //$state =  bin2hex(openssl_random_pseudo_bytes(4));
         $state = \Session::getId();
         \Session::put($state,$preURL);
