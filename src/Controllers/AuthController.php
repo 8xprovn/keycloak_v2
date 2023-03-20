@@ -23,7 +23,7 @@ class AuthController extends Controller
         }
         //$state =  bin2hex(openssl_random_pseudo_bytes(4));
         $state = \Session::getId();
-        \Session::put($state,$preURL);
+        \Session::put($state,$uri);
         $url = KeycloakWeb::getLoginUrl($state);
         return redirect($url);
     }
