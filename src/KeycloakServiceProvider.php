@@ -73,10 +73,10 @@ class KeycloakServiceProvider extends ServiceProvider
     private function registerRoutes()
     {
         $options = [
-            'login' => env('ROUTE_PREFIX').'/login',
-            'logout' => env('ROUTE_PREFIX').'/logout',
+            'login' => '/login',
+            'logout' => '/logout',
             //'register' => 'auth/register',
-            'callback' => env('ROUTE_PREFIX').'/callback',
+            'callback' => '/callback',
         ];
         // Register Routes
         $router = $this->app->make('router');
