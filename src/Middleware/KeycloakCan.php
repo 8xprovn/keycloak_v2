@@ -20,7 +20,7 @@ class KeycloakCan extends KeycloakAuthenticated
     public function handle($request, Closure $next, ...$guards)
     {
         $allowed_permissions = KeycloakWeb::getPermissionUser(); /// khong duoc cap quyen j
-        $is_superadmin = (!empty($allowed_permission['is_superadmin'])) ? true : false;
+        $is_superadmin = (!empty($allowed_permissions['is_superadmin'])) ? true : false;
         if (!$is_superadmin && empty($allowed_permissions['permission'])) {
             if($request->ajax()){
                 return response(['error' => '403', 'error_description' => 'Không đủ quyền truy cập vào tài nguyên này'], 403);
