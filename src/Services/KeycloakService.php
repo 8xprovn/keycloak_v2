@@ -235,18 +235,10 @@ class KeycloakService
         return $token;
     }
     public function getPermissionUser() {
-        $userId = \Auth::id();
-        if ($permission = session()->get(self::KEYCLOAK_SESSION.'user_permission_'.$userId)){
-            return $permission;
-        }
-        $token = $this->retrieveToken();
-        $response = \Http::withToken($token['access_token'])->get($this->baseUrl.'/api/permission',['service' => config('app.service_code')]);
-        if ($response->successful()) {
-            $permission = $response->json();
-            session()->put(self::KEYCLOAK_SESSION.'user_permission_'.$userId, $permission);
-            return $permission;
-        }
-        return false;
+        $routePrefix = Route::current()->getPrefix() ?? 'admin';
+        $group = trim($routePrefix,'/');
+        $permission = new Permissions();
+        return $permission->me(['service' => config('app.service_code'),'group' => $group]);
     }
     /**
      * Get access token from Code

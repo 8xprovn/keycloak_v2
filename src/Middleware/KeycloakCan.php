@@ -20,8 +20,8 @@ class KeycloakCan extends KeycloakAuthenticated
     public function handle($request, Closure $next, ...$guards)
     {
         $allowed_permissions = KeycloakWeb::getPermissionUser(); /// khong duoc cap quyen j
-        if (!$allowed_permissions) {
-            
+        $is_superadmin = (!empty($allowed_permission['is_superadmin'])) ? true : false;
+        if (!$is_superadmin && empty($allowed_permissions['permission'])) {
             if($request->ajax()){
                 return response(['error' => '403', 'error_description' => 'Không đủ quyền truy cập vào tài nguyên này'], 403);
             }
@@ -34,7 +34,7 @@ class KeycloakCan extends KeycloakAuthenticated
         //         return $next($request);
         //     }   
         // }
-        $is_superadmin = (!empty($allowed_permissions['role']) && $allowed_permissions['role'] == 'superadmin') ? true : false;
+        
         $current_nameas = \Request::route()->getName(); //router name
         \Gate::before(function () use ($is_superadmin) {
             //return true;
@@ -42,12 +42,12 @@ class KeycloakCan extends KeycloakAuthenticated
                 return $is_superadmin;
             }
         });
-        if(!empty($allowed_permissions)){
+        if(!empty($allowed_permissions['permission'])){
             \Gate::define('home', function ($user) {
                 return true;
             });
-            foreach($allowed_permissions as $allowed_permission) {
-                \Gate::define($allowed_permission, function ($user) {
+            foreach($allowed_permissions['permission'] as $permission) {
+                \Gate::define($permission, function ($user) {
                     return true;
                 });
             }
