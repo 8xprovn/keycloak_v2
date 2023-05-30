@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Cookie;
 use Keycloak\Auth\Guard\KeycloakWebGuard;
 use Firebase\JWT\JWT;
 use Microservices\models\Hr\Employees;
+use Microservices\models\Authorization\Permissions;
 
 class KeycloakService
 {
