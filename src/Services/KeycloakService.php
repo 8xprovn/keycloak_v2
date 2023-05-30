@@ -236,8 +236,11 @@ class KeycloakService
         return $token;
     }
     public function getPermissionUser() {
-        $routePrefix = Route::current()->getPrefix() ?? 'admin';
+        $routePrefix = Route::current()->getPrefix();
         $group = trim($routePrefix,'/');
+        if (!$group) {
+            $group = 'admin';
+        }
         $permission = new Permissions();
         return $permission->me(['service' => config('app.service_code'),'group' => $group]);
     }
