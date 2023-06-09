@@ -238,7 +238,7 @@ class KeycloakService
     public function getPermissionUser() {
         $routePrefix = Route::current()->getPrefix();
         $group = trim($routePrefix,'/');
-        if (!$group) {
+        if (!in_array($group,['admin','manager','me'])) {
             $group = 'admin';
         }
         $permission = new Permissions();
