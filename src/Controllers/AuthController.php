@@ -19,11 +19,9 @@ class AuthController extends Controller
     {
         $uri = $request->query('redirect_uri');
         if (!$uri) {
-            $uri = \URL::previous();
+            $uri = env('APP_URL');
         }
-        //$state =  bin2hex(openssl_random_pseudo_bytes(4));
-        $state = \Session::getId();
-        \Session::put($state,$uri);
+        $state = base64_encode($uri);
         $url = KeycloakWeb::getLoginUrl($state);
         return redirect($url);
     }
@@ -67,11 +65,10 @@ class AuthController extends Controller
 
             throw new KeycloakCallbackException($error);
         }
-
         $code = $request->input('code');
         $state = $request->input('state');
 
-
+        $state = base64_decode($state);
         if(empty($state)) return redirect(route('keycloak.logout'));
 
         $redirectURL = \Session::get($state);
@@ -79,13 +76,9 @@ class AuthController extends Controller
         if (! empty($code)) {
             $token = KeycloakWeb::getAccessToken($code);
             if (Auth::validate($token)) {
-                //$url = env('ROUTE_PREFIX') ?? '/';
-                \Session::forget($state);
-                //return response("OK");
-                return redirect($redirectURL);
+                return redirect($state);
             }
         }
-
         return redirect(route('keycloak.logout'));
     }
 }
