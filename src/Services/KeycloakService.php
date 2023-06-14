@@ -325,19 +325,8 @@ class KeycloakService
      */
     public function saveToken($credentials)
     {
-        //Cookie make(string $name, string $value, int $minutes = 0, string|null $path = null, string|null $domain = null, bool|null $secure = null, bool $httpOnly = true, bool $raw = false, string|null $sameSite = null) 
-        //session()->put(self::KEYCLOAK_SESSION.'access_token', $credentials['access_token']);
         Cookie::queue(self::KEYCLOAK_SESSION.'access_token', $credentials['access_token'], 3600, null, null, true, false);
         Cookie::queue(self::KEYCLOAK_SESSION.'refresh_token', $credentials['access_token'], 1440, null, null, true, false);
-
-        //setcookie(self::KEYCLOAK_SESSION.'access_token', $credentials['access_token'], time() + 21600 , '/', null , false , false);
-        //setcookie(self::KEYCLOAK_SESSION.'refresh_token', $credentials['refresh_token'], time() + 259200 , '/', null , false , false); // 3 ngay
-        
-        //Cookie::queue(cookie(self::KEYCLOAK_SESSION.'access_token', $credentials['access_token'], 180, '/' , null , false, false));
-        //setcookie("TestCookie", $credentials['access_token'], 180, '/' , null , false, false);
-        //cookie('name', 'value', $minutes);
-        // session()->put(self::KEYCLOAK_SESSION, $credentials);
-        // session()->save();
     }
 
     /**
@@ -347,10 +336,7 @@ class KeycloakService
      */
     public function forgetToken()
     {
-        //session()->forget(self::KEYCLOAK_SESSION.'access_token');
-        //\Session::invalidate();
-        //setcookie(self::KEYCLOAK_SESSION.'access_token', "", time() - 86400,'/');
-        //setcookie(self::KEYCLOAK_SESSION.'refresh_token', "", time() - 86400,'/');
+
         Cookie::queue(Cookie::forget(self::KEYCLOAK_SESSION.'refresh_token'));
         Cookie::queue(Cookie::forget(self::KEYCLOAK_SESSION.'access_token'));
     }
