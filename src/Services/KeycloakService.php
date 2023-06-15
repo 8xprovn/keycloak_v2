@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Cookie;
 use Keycloak\Auth\Guard\KeycloakWebGuard;
 use Firebase\JWT\JWT;
 use Microservices\models\Hr\Employees;
-use Microservices\models\Authorization\Permissions;
+use Microservices\models\Authorization\EmployeeToRole;
 
 class KeycloakService
 {
@@ -241,7 +241,7 @@ class KeycloakService
         if (!in_array($group,['admin','manager','me'])) {
             $group = 'admin';
         }
-        $permission = new Permissions();
+        $permission = new EmployeeToRole();
         return $permission->me(['service' => config('app.service_code'),'group' => $group]);
     }
     /**
