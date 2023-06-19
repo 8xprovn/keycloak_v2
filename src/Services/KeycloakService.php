@@ -6,7 +6,6 @@ use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Cookie;
@@ -326,7 +325,7 @@ class KeycloakService
     public function saveToken($credentials)
     {
         Cookie::queue(self::KEYCLOAK_SESSION.'access_token', $credentials['access_token'], 3600, null, null, true, false);
-        Cookie::queue(self::KEYCLOAK_SESSION.'refresh_token', $credentials['access_token'], 1440, null, null, true, false);
+        Cookie::queue(self::KEYCLOAK_SESSION.'refresh_token', $credentials['refresh_token'], 1440, null, null, true, false);
     }
 
     /**
