@@ -324,8 +324,8 @@ class KeycloakService
      */
     public function saveToken($credentials)
     {
-        Cookie::queue(self::KEYCLOAK_SESSION.'access_token', $credentials['access_token'], 3600, null, null, true, false);
-        Cookie::queue(self::KEYCLOAK_SESSION.'refresh_token', $credentials['refresh_token'], 1440, null, null, true, false);
+        Cookie::queue(self::KEYCLOAK_SESSION.'access_token', $credentials['access_token'], 1440, null, null, true, false);
+        Cookie::queue(self::KEYCLOAK_SESSION.'refresh_token', $credentials['refresh_token'], 8640, null, null, true, false);
     }
 
     /**
