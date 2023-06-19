@@ -91,17 +91,12 @@ class KeycloakWebGuard
      * @return bool
      */
     public function validate(array $credentials = [])
-    {
-        if (empty($credentials['access_token'])) {
-            return false;
+    {      
+        $result = $this->authenticate($credentials);
+        if ($result) {
+            KeycloakWeb::saveToken($credentials);
         }
-        /**
-         * Store the section
-         */
-        $credentials['refresh_token'] = $credentials['refresh_token'] ?? '';
-        KeycloakWeb::saveToken($credentials);
-
-        return $this->authenticate($credentials);
+        return $result;
     }
 
     /**
