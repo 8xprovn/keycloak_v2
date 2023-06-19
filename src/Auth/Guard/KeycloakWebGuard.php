@@ -117,7 +117,7 @@ class KeycloakWebGuard
         if (!$credentials) {
             $credentials = KeycloakWeb::retrieveToken();    
         }
-        if (empty($credentials['access_token'])) {
+        if (empty($credentials['access_token']) && empty($credentials['refresh_token'])) {
             return false;
         }
         $user = KeycloakWeb::getUserProfile($credentials);
