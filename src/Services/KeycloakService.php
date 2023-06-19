@@ -407,6 +407,7 @@ class KeycloakService
             return [];
         }
         $this->saveToken($credentials);
+        redirect(env('APP_URL'));
         return $credentials;
     }
 
