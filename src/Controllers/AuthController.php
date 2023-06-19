@@ -69,10 +69,7 @@ class AuthController extends Controller
         $state = $request->input('state');
 
         $state = base64_decode($state);
-        if(empty($state)) return redirect(route('keycloak.logout'));
-
-        $redirectURL = \Session::get($state);
-        
+        if(empty($state)) return redirect(route('keycloak.logout'));  
         if (! empty($code)) {
             $token = KeycloakWeb::getAccessToken($code);
             if (Auth::validate($token)) {
