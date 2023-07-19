@@ -11,8 +11,6 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Cookie;
 use Keycloak\Auth\Guard\KeycloakWebGuard;
 use Firebase\JWT\JWT;
-use Microservices\models\Hr\Employees;
-use Microservices\models\Authorization\EmployeeToRole;
 
 class KeycloakService
 {
@@ -240,8 +238,7 @@ class KeycloakService
         if (!in_array($group,['admin','manager','me'])) {
             $group = 'admin';
         }
-        $permission = new EmployeeToRole();
-        return $permission->me(['service' => config('app.service_code'),'group' => $group]);
+        return \Microservices::Authorization('EmployeeToRole')->me(['service' => config('app.service_code'),'group' => $group]);
     }
     /**
      * Get access token from Code
@@ -259,7 +256,12 @@ class KeycloakService
         if (!$user) {
             return [];
         }
-        return ['user_id' => $user['sub']];
+        $userProfile = \Microservices::Hr('Employees')->detail($user['sub']);
+        if (!$userProfile) {
+            return [];
+        }
+        $userProfile['user_id'] = $user['sub'];
+        return $userProfile;
 
         // if ($userProfile = session()->get(self::KEYCLOAK_SESSION.'user_profile_'.$user['sub'])){
         //     return $userProfile;

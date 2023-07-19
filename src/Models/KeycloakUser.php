@@ -14,15 +14,18 @@ class KeycloakUser implements Authenticatable
      */
     protected $fillable = [
         'user_id',
+        '_id',
         'name',
         'first_name',
         'last_name',
+        'fullname',
         'email',
-        'employee_id',
         'branch_id',
+        'rel_branch_id',
         'branch_city_code',
         'department_id',
-        'type'
+        'type',
+        'job_title_id'
     ];
 
     /**

@@ -120,6 +120,19 @@ class KeycloakWebGuard
             KeycloakWeb::forgetToken();
             return false;
         }
+        // CHECK PREFIX
+        $p = 'admin';
+        $prefix = trim(\Route::current()->getPrefix(),'/');
+        
+        if ($prefix) {
+            $prefix = explode('/',$prefix);
+            $prefix = array_shift($prefix);
+            if (in_array($prefix,['me','manager'])) {
+                $p = $prefix;
+            }
+        }
+        Config::set('route.site', $p);
+        Config::set('route.as', ($p == 'admin') ? '' : $p.'.');
 
         // Provide User
         $user = $this->provider->retrieveByCredentials($user);
