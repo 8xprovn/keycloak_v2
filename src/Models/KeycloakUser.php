@@ -25,7 +25,8 @@ class KeycloakUser implements Authenticatable
         'branch_city_code',
         'department_id',
         'type',
-        'job_title_id'
+        'job_title_id',
+        'brand_id'
     ];
 
     /**
