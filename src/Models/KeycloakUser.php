@@ -26,7 +26,8 @@ class KeycloakUser implements Authenticatable
         'department_id',
         'type',
         'job_title_id',
-        'brand_id'
+        'brand_id',
+        'avatar'
     ];
 
     /**
