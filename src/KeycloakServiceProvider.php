@@ -13,6 +13,7 @@ use Keycloak\Auth\Guard\KeycloakApiGuard;
 use Keycloak\Auth\KeycloakWebUserProvider;
 use Keycloak\Middleware\KeycloakAuthenticated;
 use Keycloak\Middleware\KeycloakCan;
+use Keycloak\Middleware\KeycloakPolicy;
 use Keycloak\Models\KeycloakUser;
 use Keycloak\Services\KeycloakService;
 use Illuminate\Support\Facades\Route;
