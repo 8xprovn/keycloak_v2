@@ -30,21 +30,6 @@ class KeycloakServiceProvider extends ServiceProvider
         Auth::provider('keycloak-users', function($app, array $config) {
             return new KeycloakWebUserProvider($config['model']);
         });
-        ///////// GET SITE ////////
-        $prefix = strtolower(\Request::segment(1));
-        $PATH = ''; $as = '';
-        if (in_array($prefix,['me','manager'])) {
-            $PATH = ucfirst($prefix).'\\';
-            $as = $prefix.'.';
-        }
-        else {
-            $prefix = '';
-        }
-        \Config::set('route.site',$prefix);
-        \Config::set('route.as',$as);
-        \Gate::guessPolicyNamesUsing(function ($modelClass) use ($PATH) {
-            return 'App\\Policies\\' . $PATH . ucfirst(class_basename($modelClass)) . 'Policy';
-        });
     }
 
     /**
@@ -75,6 +60,7 @@ class KeycloakServiceProvider extends ServiceProvider
         $this->registerRoutes();
 
         $this->app['router']->aliasMiddleware('keycloak-web-can', KeycloakCan::class);
+        $this->app['router']->aliasMiddleware('keycloak-policy', KeycloakPolicy::class);
 
         // Interfaces
         $this->app->bind(ClientInterface::class, Client::class);
