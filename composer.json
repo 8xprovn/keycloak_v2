@@ -4,5 +4,12 @@
          "psr-4": {
              "Keycloak\\": "src/"
          }
-     }
+     },
+     "extra": {
+        "laravel": {
+            "providers": [
+                "Keycloak\\KeycloakServiceProvider"
+            ]
+        }
+    }
  }

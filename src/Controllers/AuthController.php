@@ -58,7 +58,8 @@ class AuthController extends Controller
             $error = $request->input('error_description');
             $error = ($error) ?: $request->input('error');
 
-            throw new KeycloakCallbackException($error);
+            //throw new KeycloakCallbackException($error);
+            return redirect('/');
         }
 
         $code = $request->input('code');
