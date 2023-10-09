@@ -5,7 +5,6 @@ namespace Keycloak\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
-use Keycloak\Exceptions\KeycloakCallbackException;
 use Keycloak\Facades\KeycloakWeb;
 
 class AuthController extends Controller

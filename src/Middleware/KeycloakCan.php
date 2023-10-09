@@ -4,7 +4,6 @@ namespace Keycloak\Middleware;
 
 use Closure;
 use Illuminate\Support\Facades\Auth;
-use Keycloak\Exceptions\KeycloakCanException;
 use Keycloak\Facades\KeycloakWeb;
 
 class KeycloakCan extends KeycloakAuthenticated
