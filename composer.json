@@ -1,8 +1,15 @@
 {
-     "name": "8xprovn/keycloak_v2",
-     "autoload": {
+    "name": "8xprovn/keycloak_v2",
+    "autoload": {
          "psr-4": {
              "Keycloak\\": "src/"
          }
-     }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Keycloak\\KeycloakServiceProvider"
+            ]
+        }
+    }
  }
