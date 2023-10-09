@@ -6,7 +6,6 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
-use Keycloak\Exceptions\KeycloakCallbackException;
 use Keycloak\Models\KeycloakUser;
 use Keycloak\Facades\KeycloakWeb;
 use Illuminate\Contracts\Auth\UserProvider;
@@ -102,7 +101,6 @@ class KeycloakApiGuard
     /**
      * Try to authenticate the user
      *
-     * @throws KeycloakCallbackException
      * @return boolean
      */
     public function authenticate($credentials = array())

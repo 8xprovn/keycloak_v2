@@ -5,7 +5,6 @@ namespace Keycloak\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
-use Keycloak\Exceptions\KeycloakCallbackException;
 use Keycloak\Facades\KeycloakWeb;
 
 class AuthController extends Controller
@@ -53,8 +52,6 @@ class AuthController extends Controller
     /**
      * Keycloak callback page
      *
-     * @throws KeycloakCallbackException
-     *
      * @return view
      */
     public function callback(Request $request)
@@ -63,7 +60,7 @@ class AuthController extends Controller
             $error = $request->input('error_description');
             $error = ($error) ?: $request->input('error');
 
-            throw new KeycloakCallbackException($error);
+            return redirect("/");
         }
         $code = $request->input('code');
         $state = $request->input('state');
