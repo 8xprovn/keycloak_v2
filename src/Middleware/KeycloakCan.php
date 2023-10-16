@@ -46,6 +46,11 @@ class KeycloakCan extends KeycloakAuthenticated
                 return true;
             });
             foreach($allowed_permissions['permission'] as $permission) {
+                if (strpos($permission,':') !== false) {
+                    $arrPermission = explode(':',$permission);
+                    $permission = $arrPermission[0];
+                    $request->headers->set('erp-authorization-policy', $arrPermission[1]);
+                }
                 \Gate::define($permission, function ($user) {
                     return true;
                 });
