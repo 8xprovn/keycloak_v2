@@ -31,6 +31,12 @@ class KeycloakServiceProvider extends ServiceProvider
         Auth::provider('keycloak-users', function($app, array $config) {
             return new KeycloakWebUserProvider($config['model']);
         });
+        \Gate::before(function ($user) {
+            //return true;
+            if($user->is_superadmin){
+                return true;
+            }
+        });
     }
 
     /**

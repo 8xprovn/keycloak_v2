@@ -233,12 +233,7 @@ class KeycloakService
         return $token;
     }
     public function getPermissionUser() {
-        $routePrefix = Route::current()->getPrefix();
-        $group = trim($routePrefix,'/');
-        if (!in_array($group,['admin','manager','me'])) {
-            $group = 'admin';
-        }
-        return \Microservices::Authorization('EmployeeToRole')->me(['service' => config('app.service_code'),'group' => $group]);
+        return \Microservices::Authorization('EmployeeToRole')->me(['service' => config('app.service_code'),'group' => 'admin']);
     }
     /**
      * Get access token from Code

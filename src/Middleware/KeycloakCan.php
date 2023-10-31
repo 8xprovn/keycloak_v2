@@ -28,6 +28,7 @@ class KeycloakCan extends KeycloakAuthenticated
                 abort(403);
             }
         }
+        \Auth::user()->is_superadmin = $is_superadmin;
         // if($request->ajax()){
         //     if ($request->isMethod('get')) {
         //         return $next($request);
@@ -35,12 +36,6 @@ class KeycloakCan extends KeycloakAuthenticated
         // }
         
         $current_nameas = \Request::route()->getName(); //router name
-        \Gate::before(function () use ($is_superadmin) {
-            //return true;
-            if($is_superadmin){
-                return $is_superadmin;
-            }
-        });
         if(!empty($allowed_permissions['permission'])){
             \Gate::define('home', function ($user) {
                 return true;
