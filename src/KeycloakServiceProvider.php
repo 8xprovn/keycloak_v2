@@ -40,6 +40,17 @@ class KeycloakServiceProvider extends ServiceProvider
                 return true;
             }
         });
+        \Gate::before(function ($user,$ability) {
+            //return true;
+            if($user->is_superadmin){
+                return true;
+            }
+            if ($user->permissions) {
+                if (in_array($ability,$user->permissions)) {
+                    return true;
+                }
+            }
+        });
     }
 
     /**

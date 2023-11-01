@@ -20,7 +20,11 @@ class KeycloakCan extends KeycloakAuthenticated
     {
         $allowed_permissions = KeycloakWeb::getPermissionUser(); /// khong duoc cap quyen j
         $is_superadmin = (!empty($allowed_permissions['is_superadmin'])) ? true : false;
-        if (!$is_superadmin && empty($allowed_permissions['permission'])) {
+        \Auth::user()->is_superadmin = $is_superadmin;
+        if ($is_superadmin) {
+            return $next($request);
+        }
+        if (empty($allowed_permissions['permission'])) {
             if($request->ajax()){
                 return response(['error' => '403', 'error_description' => 'Không đủ quyền truy cập vào tài nguyên này'], 403);
             }
@@ -28,32 +32,20 @@ class KeycloakCan extends KeycloakAuthenticated
                 abort(403);
             }
         }
-        \Auth::user()->is_superadmin = $is_superadmin;
-        // if($request->ajax()){
-        //     if ($request->isMethod('get')) {
-        //         return $next($request);
-        //     }   
-        // }
         
-        $current_nameas = \Request::route()->getName(); //router name
-        if(!empty($allowed_permissions['permission'])){
-            \Gate::define('home', function ($user) {
-                return true;
-            });
-            foreach($allowed_permissions['permission'] as $permission) {
-                if (strpos($permission,':') !== false){
-                    $arrPermission = explode(':',$permission);
-                    $permission = $arrPermission[0];
-                    if ($current_nameas == $permission) {
-                        $request->headers->set('erp-authorization-policy', $arrPermission[1]);
-                    }
+         //router name
+         $current_nameas = \Request::route()->getName();
+        foreach($allowed_permissions['permission'] as $k => $permission) {
+            if (strpos($permission,':') !== false){
+                $arrPermission = explode(':',$permission);
+                $permission = $arrPermission[0];
+                if ($current_nameas == $permission) {
+                    $request->headers->set('erp-authorization-policy', $arrPermission[1]);
                 }
-                \Gate::define($permission, function ($user) {
-                    return true;
-                });
+                $allowed_permissions['permission'][$k] = $permission;
             }
-            
         }
+        \Auth::user()->permissions = $allowed_permissions['permission'];
         if(\Gate::allows($current_nameas)){
             return $next($request);
         }
