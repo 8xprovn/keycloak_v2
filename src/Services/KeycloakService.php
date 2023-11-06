@@ -232,8 +232,8 @@ class KeycloakService
 
         return $token;
     }
-    public function getPermissionUser() {
-        return \Microservices::Authorization('EmployeeToRole',['token' => 'cookie'])->me(['service' => config('app.service_code'),'group' => 'admin']);
+    public function getPermissionUser($token = 'cookie') {
+        return \Microservices::Authorization('EmployeeToRole',['token' => $token])->me(['service' => config('app.service_code'),'group' => 'admin']);
     }
     /**
      * Get access token from Code
