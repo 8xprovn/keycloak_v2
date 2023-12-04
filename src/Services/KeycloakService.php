@@ -417,7 +417,7 @@ class KeycloakService
     protected function logException(GuzzleException $e)
     {
         if (empty($e->getResponse())) {
-            Log::error('[Keycloak Service] ' . $e->getMessage());
+            Log::info('[Keycloak Service] ' . $e->getMessage());
             return;
         }
 
@@ -426,7 +426,7 @@ class KeycloakService
             'response' => $e->getResponse()->getBody()->getContents(),
         ];
 
-        Log::error('[Keycloak Service] ' . print_r($error, true));
+        Log::info('[Keycloak Service] ' . print_r($error, true));
     }
 
     /**
