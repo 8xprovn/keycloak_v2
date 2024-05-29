@@ -7,9 +7,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Cookie;
-use Keycloak\Auth\Guard\KeycloakWebGuard;
 use Firebase\JWT\JWT;
 
 class KeycloakService
