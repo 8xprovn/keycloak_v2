@@ -116,13 +116,15 @@ class KeycloakApiGuard
         if (!$decodedToken) {
             return false;
         }
+        $returnData = ['user_id' => $decodedToken['sub']];
         if ($decodedToken['sub'] == 1) {
-            $apiRole = 'admin'; 
+            $returnData['api_role'] = 'admin'; 
+            $returnData['is_superadmin'] = 1;
         }
         else {
-            $apiRole = 'employee';
+            $returnData['api_role'] = 'employee';
         }
-        $user = $this->provider->retrieveByCredentials(['user_id' => $decodedToken['sub'],'api_role' => $apiRole]);
+        $user = $this->provider->retrieveByCredentials($returnData);
         $this->setUser($user);
         return true;
     }
