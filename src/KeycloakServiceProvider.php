@@ -4,17 +4,14 @@ namespace Keycloak;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
-use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
 use Keycloak\Auth\Guard\KeycloakWebGuard;
 use Keycloak\Auth\Guard\KeycloakApiGuard;
 use Keycloak\Auth\KeycloakWebUserProvider;
-use Keycloak\Middleware\KeycloakAuthenticated;
 use Keycloak\Middleware\KeycloakCan;
-use Keycloak\Middleware\KeycloakPolicy;
-use Keycloak\Models\KeycloakUser;
+use Keycloak\Middleware\KeycloakApiCan;
+#use Keycloak\Middleware\KeycloakPolicy;
 use Keycloak\Services\KeycloakService;
 use Illuminate\Support\Facades\Route;
 
@@ -79,9 +76,9 @@ class KeycloakServiceProvider extends ServiceProvider
 
         // Routes
         $this->registerRoutes();
-
+        $this->app['router']->aliasMiddleware('keycloak-api-can', KeycloakApiCan::class);
         $this->app['router']->aliasMiddleware('keycloak-web-can', KeycloakCan::class);
-        $this->app['router']->aliasMiddleware('keycloak-policy', KeycloakPolicy::class);
+        #$this->app['router']->aliasMiddleware('keycloak-policy', KeycloakPolicy::class);
 
         // Interfaces
         $this->app->bind(ClientInterface::class, Client::class);
