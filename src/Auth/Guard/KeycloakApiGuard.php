@@ -119,7 +119,6 @@ class KeycloakApiGuard
         $returnData = ['user_id' => $decodedToken['sub']];
         if ($decodedToken['sub'] == 1) {
             $returnData['api_role'] = 'admin'; 
-            $returnData['is_superadmin'] = 1;
         }
         else {
             $returnData['api_role'] = 'employee';

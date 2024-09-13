@@ -4,7 +4,6 @@ namespace Keycloak\Middleware;
 
 use Closure;
 use Illuminate\Support\Facades\Auth;
-use Keycloak\Facades\KeycloakWeb;
 
 class KeycloakApiCan extends KeycloakAuthenticated
 {
@@ -18,10 +17,8 @@ class KeycloakApiCan extends KeycloakAuthenticated
      */
     public function handle($request, Closure $next, ...$guards)
     {
-        $is_superadmin = (\Auth::id() == 1) ? true : false;
-        \Auth::user()->is_superadmin = $is_superadmin;
-
-        if ($is_superadmin) {
+        $userData = Auth::user();
+        if ($userData->api_role == 'admin' || $userData->is_superadmin) {
             return $next($request);
         }
         //router name

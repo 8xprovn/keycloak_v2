@@ -28,7 +28,9 @@ class KeycloakUser implements Authenticatable
         'job_title_id',
         'brand_id',
         'avatar',
-        'subordinates'
+        'subordinates',
+        'is_superadmin',
+        'api_role'
     ];
 
     /**

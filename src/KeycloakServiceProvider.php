@@ -11,7 +11,6 @@ use Keycloak\Auth\Guard\KeycloakApiGuard;
 use Keycloak\Auth\KeycloakWebUserProvider;
 use Keycloak\Middleware\KeycloakCan;
 use Keycloak\Middleware\KeycloakApiCan;
-#use Keycloak\Middleware\KeycloakPolicy;
 use Keycloak\Services\KeycloakService;
 use Illuminate\Support\Facades\Route;
 
@@ -78,7 +77,6 @@ class KeycloakServiceProvider extends ServiceProvider
         $this->registerRoutes();
         $this->app['router']->aliasMiddleware('keycloak-api-can', KeycloakApiCan::class);
         $this->app['router']->aliasMiddleware('keycloak-web-can', KeycloakCan::class);
-        #$this->app['router']->aliasMiddleware('keycloak-policy', KeycloakPolicy::class);
 
         // Interfaces
         $this->app->bind(ClientInterface::class, Client::class);
