@@ -2,13 +2,13 @@
 
 namespace Keycloak\Services;
 
-use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Cookie;
 use Firebase\JWT\JWT;
+use Exception;
 
 class KeycloakService
 {
@@ -79,10 +79,9 @@ class KeycloakService
      * You can extend this service setting protected variables before call
      * parent constructor to comunicate with Keycloak smoothly.
      *
-     * @param ClientInterface $client
      * @return void
      */
-    public function __construct(ClientInterface $client)
+    public function __construct()
     {
         if (is_null($this->baseUrl)) {
             $this->baseUrl = trim(env('KEYCLOAK_BASE_URL'));
@@ -100,8 +99,6 @@ class KeycloakService
         if (is_null($this->redirectLogout)) {
             $this->redirectLogout = Config::get('keycloak-web.redirect_logout');
         }
-
-        $this->httpClient = $client;
     }
 
     /**
@@ -175,17 +172,15 @@ class KeycloakService
         }
 
         $token = [];
-
-
         try {
-            $response = $this->httpClient->request('POST', $url, ['form_params' => $params]);
-
-            if ($response->getStatusCode() === 200) {
-                $token = $response->getBody()->getContents();
-                $token = json_decode($token, true);
-            }
-        } catch (GuzzleException $e) {
-            $this->logException($e);
+            $response = Http::acceptJson()->post($url, $params);
+            if ($response->successful()) {
+                // Xử lý và trả kết quả khi thành công
+                return $response->json(); // Hoặc $response->body() nếu bạn muốn lấy toàn bộ nội dung
+            } 
+            throw new Exception($response->body());
+        } catch (Exception $e) {
+            return Log::error('[Keycloak Service: getAccessToken] ' . $e->getMessage());
         }
 
         return $token;
@@ -214,21 +209,16 @@ class KeycloakService
         if (! empty($this->clientSecret)) {
             $params['client_secret'] = $this->clientSecret;
         }
-
-        $token = [];
-
         try {
-            $response = $this->httpClient->request('POST', $url, ['form_params' => $params]);
-
-            if ($response->getStatusCode() === 200) {
-                $token = $response->getBody()->getContents();
-                $token = json_decode($token, true);
-            }
-        } catch (GuzzleException $e) {
-            $this->logException($e);
+            $response = Http::acceptJson()->post($url, $params);
+            if ($response->successful()) {
+                // Xử lý và trả kết quả khi thành công
+                return $response->json(); // Hoặc $response->body() nếu bạn muốn lấy toàn bộ nội dung
+            } 
+            throw new Exception($response->body());
+        } catch (Exception $e) {
+            return Log::error('[Keycloak Service: refreshAccessToken] ' . $e->getMessage());
         }
-
-        return $token;
     }
     public function getPermissionUser() {
         $user = \Auth::user();
@@ -287,7 +277,7 @@ class KeycloakService
         try {
             JWT::$leeway = 10;
             return (array)JWT::decode($token, $public_key , array('RS256'));
-        }catch (\Exception $e) {
+        }catch (Exception $e) {
              return [];
         }
     }
@@ -308,7 +298,6 @@ class KeycloakService
         return array_filter([
             'refresh_token' => Cookie::get(self::KEYCLOAK_SESSION.'refresh_token'),
             'access_token' => Cookie::get(self::KEYCLOAK_SESSION.'access_token'),
-            //'access_token' => session()->get(self::KEYCLOAK_SESSION.'access_token')
         ]);
         //return session()->get(self::KEYCLOAK_SESSION);
     }
@@ -406,28 +395,6 @@ class KeycloakService
         redirect(env('APP_URL'));
         return $credentials;
     }
-
-    /**
-     * Log a GuzzleException
-     *
-     * @param  GuzzleException $e
-     * @return void
-     */
-    protected function logException(GuzzleException $e)
-    {
-        if (empty($e->getResponse())) {
-            Log::info('[Keycloak Service] ' . $e->getMessage());
-            return;
-        }
-
-        $error = [
-            'request' => $e->getRequest(),
-            'response' => $e->getResponse()->getBody()->getContents(),
-        ];
-
-        Log::info('[Keycloak Service] ' . print_r($error, true));
-    }
-
     /**
      * Base64UrlDecode string
      *
