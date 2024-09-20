@@ -178,7 +178,7 @@ class KeycloakService
                 // Xử lý và trả kết quả khi thành công
                 return $response->json(); // Hoặc $response->body() nếu bạn muốn lấy toàn bộ nội dung
             } 
-            throw new Exception($response->body());
+            return Log::info('[Keycloak Service: getAccessToken] ' . $response->body());
         } catch (Exception $e) {
             return Log::error('[Keycloak Service: getAccessToken] ' . $e->getMessage());
         }
@@ -215,7 +215,7 @@ class KeycloakService
                 // Xử lý và trả kết quả khi thành công
                 return $response->json(); // Hoặc $response->body() nếu bạn muốn lấy toàn bộ nội dung
             } 
-            throw new Exception($response->body());
+            return Log::info('[Keycloak Service: refreshAccessToken] ' . $response->body());
         } catch (Exception $e) {
             return Log::error('[Keycloak Service: refreshAccessToken] ' . $e->getMessage());
         }
