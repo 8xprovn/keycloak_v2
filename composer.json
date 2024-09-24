@@ -5,6 +5,9 @@
              "Keycloak\\": "src/"
          }
     },
+    "require": {
+        "firebase/php-jwt": "^6.10" // Package bắt buộc
+    },
     "extra": {
         "laravel": {
             "providers": [
