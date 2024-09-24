@@ -6,7 +6,7 @@
          }
     },
     "require": {
-        "firebase/php-jwt": "^6.10" // Package bắt buộc
+        "firebase/php-jwt": "^6.10"
     },
     "extra": {
         "laravel": {

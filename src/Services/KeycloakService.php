@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Cookie;
 use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 use Exception;
 
 class KeycloakService
@@ -276,7 +277,7 @@ class KeycloakService
         $public_key = env('KEYCLOAK_REALM_PUBLIC_KEY');
         try {
             JWT::$leeway = 10;
-            return (array)JWT::decode($token, $public_key , array('RS256'));
+            return (array)JWT::decode($token, new Key($public_key, 'RS256'));
         }catch (Exception $e) {
              return [];
         }
