@@ -20,6 +20,10 @@ class AuthController extends Controller
         if (!$uri) {
             $uri = env('APP_URL');
         }
+        //////// RELOGIN ////////
+        if (Auth::loginUsingAccessToken()) {
+            return redirect($uri);
+        }
         $state = base64_encode($uri);
         $url = KeycloakWeb::getLoginUrl($state);
         return redirect($url);
@@ -32,8 +36,7 @@ class AuthController extends Controller
      */
     public function logout()
     {
-        KeycloakWeb::forgetToken();
-
+        Auth::logout();
         $url = KeycloakWeb::getLogoutUrl();
         return redirect($url);
     }
@@ -67,10 +70,9 @@ class AuthController extends Controller
 
         $state = base64_decode($state);
         if(empty($state)) return redirect(route('keycloak.logout'));
-  
         if (! empty($code)) {
             $token = KeycloakWeb::getAccessToken($code);
-            if (Auth::validate($token)) {
+            if (Auth::loginUsingToken($token)) {
                 return redirect($state);
             }
         }

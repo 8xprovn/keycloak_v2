@@ -32,7 +32,7 @@ class KeycloakUser implements Authenticatable
         'is_superadmin',
         'api_role'
     ];
-
+    protected $id;
     /**
      * User attributes
      *
@@ -73,7 +73,7 @@ class KeycloakUser implements Authenticatable
      */
     public function getKey()
     {
-        return $this->user_id;
+        return $this->_id;
     }
 
     /**

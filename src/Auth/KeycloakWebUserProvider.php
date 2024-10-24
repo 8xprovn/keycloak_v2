@@ -4,7 +4,6 @@ namespace Keycloak\Auth;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\UserProvider;
-use Keycloak\Models\KeycloakUser;
 
 class KeycloakWebUserProvider implements UserProvider
 {
@@ -22,7 +21,7 @@ class KeycloakWebUserProvider implements UserProvider
      */
     public function __construct($model)
     {
-        $this->model = $model;
+        $this->model = '\\'.ltrim($model, '\\');
     }
 
     /**
@@ -33,9 +32,10 @@ class KeycloakWebUserProvider implements UserProvider
      */
     public function retrieveByCredentials(array $credentials)
     {
-        $class = '\\'.ltrim($this->model, '\\');
+        throw new \BadMethodCallException('Unexpected method [retrieveByToken] call');
+        // $class = $this->model;
 
-        return new $class($credentials);
+        // return new $class($credentials);
     }
 
     /**
@@ -46,7 +46,9 @@ class KeycloakWebUserProvider implements UserProvider
      */
     public function retrieveById($identifier)
     {
-        throw new \BadMethodCallException('Unexpected method [retrieveById] call');
+        $user = \Microservices::Hr('Employees')->detail($identifier);
+        $class = $this->model;
+        return new $class($user);
     }
 
     /**

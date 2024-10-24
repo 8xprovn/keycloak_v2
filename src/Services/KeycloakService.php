@@ -6,18 +6,12 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Cookie;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Exception;
 
 class KeycloakService
 {
-    /**
-     * The Session key for token
-     */
-    const KEYCLOAK_SESSION = 'imap_authen_';
-
     /**
      * Keycloak URL
      *
@@ -47,20 +41,6 @@ class KeycloakService
     protected $clientSecret;
 
     /**
-     * Keycloak OpenId Configuration
-     *
-     * @var array
-     */
-    protected $openid;
-
-    /**
-     * Keycloak OpenId Cache Configuration
-     *
-     * @var array
-     */
-    protected $cacheOpenid;
-
-    /**
      * CallbackUrl
      *
      * @var array
@@ -74,7 +54,6 @@ class KeycloakService
      */
     protected $redirectLogout;
 
-    protected $userProfile;
     /**
      * The Constructor
      * You can extend this service setting protected variables before call
@@ -179,11 +158,10 @@ class KeycloakService
                 // Xử lý và trả kết quả khi thành công
                 return $response->json(); // Hoặc $response->body() nếu bạn muốn lấy toàn bộ nội dung
             } 
-            return Log::info('[Keycloak Service: getAccessToken] ' . $response->body());
+            Log::info('[Keycloak Service: getAccessToken] ' . $response->body());
         } catch (Exception $e) {
-            return Log::error('[Keycloak Service: getAccessToken] ' . $e->getMessage());
+            Log::error('[Keycloak Service: getAccessToken] ' . $e->getMessage());
         }
-
         return $token;
     }
 
@@ -193,17 +171,13 @@ class KeycloakService
      * @param  string $refreshToken
      * @return array
      */
-    public function refreshAccessToken($credentials)
+    public function refreshAccessToken($token)
     {
-        if (empty($credentials['refresh_token'])) {
-            return [];
-        }
-
         $url =  $this->baseUrl.'/oauth/token';
         $params = [
             'client_id' => $this->clientId,
             'grant_type' => 'refresh_token',
-            'refresh_token' => $credentials['refresh_token'],
+            'refresh_token' => $token,
             'redirect_uri' => $this->callbackUrl,
         ];
 
@@ -216,52 +190,15 @@ class KeycloakService
                 // Xử lý và trả kết quả khi thành công
                 return $response->json(); // Hoặc $response->body() nếu bạn muốn lấy toàn bộ nội dung
             } 
-            return Log::info('[Keycloak Service: refreshAccessToken] ' . $response->body());
+            Log::info('[Keycloak Service: refreshAccessToken] ' . $response->body());
         } catch (Exception $e) {
-            return Log::error('[Keycloak Service: refreshAccessToken] ' . $e->getMessage());
+            Log::error('[Keycloak Service: refreshAccessToken] ' . $e->getMessage());
         }
+        return [];
     }
     public function getPermissionUser() {
         $user = \Auth::user();
         return \Microservices::Authorization('EmployeeToRole')->employee(['service' => config('app.service_code'),'group' => 'admin','user_id' => $user->user_id,'department_id' => $user->department_id]);
-    }
-    /**
-     * Get access token from Code
-     * @param  array $credentials
-     * @return array
-     */
-    public function getUserProfile($credentials)
-    {
-        $credentials = $this->refreshTokenIfNeeded($credentials);
-        if (empty($credentials['access_token'])) {
-            $this->forgetToken();
-            return [];
-        }
-        $user =  $this->parseAccessToken($credentials['access_token']);
-        if (!$user) {
-            return [];
-        }
-        $userProfile = \Microservices::Hr('Employees')->detail($user['sub']);
-        if (!$userProfile) {
-            return [];
-        }
-        $userProfile['user_id'] = $user['sub'];
-        return $userProfile;
-
-        // if ($userProfile = session()->get(self::KEYCLOAK_SESSION.'user_profile_'.$user['sub'])){
-        //     return $userProfile;
-        // }
-        // if (config('app.service_code') == 'erp_hr_backend_v2') {
-        //     $userProfile = (new \App\Models\Hr\Employee)->detail($user['sub']);
-        // }
-        // else {
-        //     $userProfile = (new \Microservices\models\Hr\Employees)->detail($user['sub']);
-        // }
-        // if ($userProfile) {
-        //     $userProfile['user_id'] = $user['sub'];
-        //     session()->put(self::KEYCLOAK_SESSION.'user_profile_'.$user['sub'], $userProfile);
-        // }
-        // return $userProfile;
     }
     /**
      * Get Access Token data
@@ -282,50 +219,6 @@ class KeycloakService
              return [];
         }
     }
-
-    /**
-     * Retrieve Token from Session
-     *
-     * @return void
-     */
-    public function retrieveToken()
-    {
-
-        // return array_filter([
-           
-        //     'access_token' => $_COOKIE[self::KEYCLOAK_SESSION.'access_token'] ?? '',
-        //     'refresh_token' => $_COOKIE[self::KEYCLOAK_SESSION.'refresh_token'] ?? '',
-        // ]);
-        return array_filter([
-            'refresh_token' => Cookie::get(self::KEYCLOAK_SESSION.'refresh_token'),
-            'access_token' => Cookie::get(self::KEYCLOAK_SESSION.'access_token'),
-        ]);
-        //return session()->get(self::KEYCLOAK_SESSION);
-    }
-
-    /**
-     * Save Token to Session
-     *
-     * @return void
-     */
-    public function saveToken($credentials)
-    {
-        Cookie::queue(self::KEYCLOAK_SESSION.'access_token', $credentials['access_token'], 1440, null, null, true, false);
-        Cookie::queue(self::KEYCLOAK_SESSION.'refresh_token', $credentials['refresh_token'], 8640, null, null, true, false);
-    }
-
-    /**
-     * Remove Token from Session
-     *
-     * @return void
-     */
-    public function forgetToken()
-    {
-
-        Cookie::queue(Cookie::forget(self::KEYCLOAK_SESSION.'refresh_token'));
-        Cookie::queue(Cookie::forget(self::KEYCLOAK_SESSION.'access_token'));
-    }
-
     /**
      * Build a URL with params
      *
@@ -370,31 +263,6 @@ class KeycloakService
         $query = array_merge($query, $params);
 
         return $url . '?' . Arr::query($query);
-    }
-    /**
-     * Check we need to refresh token and refresh if needed
-     *
-     * @param  array $credentials
-     * @return array
-     */
-    protected function refreshTokenIfNeeded($credentials)
-    {
-        if (!empty($credentials['access_token'])) {
-            $info = $this->parseAccessToken($credentials['access_token']);
-            $exp = $info['exp'] ?? 0;
-
-            if (time() < $exp) {
-                return $credentials;
-            }
-        }
-        $credentials = $this->refreshAccessToken($credentials);
-        if (empty($credentials['access_token'])) {
-            $this->forgetToken();
-            return [];
-        }
-        $this->saveToken($credentials);
-        redirect(env('APP_URL'));
-        return $credentials;
     }
     /**
      * Base64UrlDecode string
