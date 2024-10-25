@@ -83,7 +83,7 @@ class KeycloakUser implements Authenticatable
      */
     public function getAuthIdentifierName()
     {
-        return 'email';
+        return '_id';
     }
 
     /**
@@ -93,7 +93,7 @@ class KeycloakUser implements Authenticatable
      */
     public function getAuthIdentifier()
     {
-        return $this->email;
+        return $this->_id;
     }
 
     /**
