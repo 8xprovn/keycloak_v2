@@ -13,9 +13,7 @@ class KeycloakUser implements Authenticatable
      * @var array
      */
     protected $fillable = [
-        'user_id',
         '_id',
-        'name',
         'first_name',
         'last_name',
         'fullname',
@@ -29,8 +27,7 @@ class KeycloakUser implements Authenticatable
         'brand_id',
         'avatar',
         'subordinates',
-        'is_superadmin',
-        'api_role'
+        'is_superadmin'
     ];
     protected $id;
     /**

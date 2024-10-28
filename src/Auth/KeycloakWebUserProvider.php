@@ -46,7 +46,10 @@ class KeycloakWebUserProvider implements UserProvider
      */
     public function retrieveById($identifier)
     {
-        $user = \Microservices::Hr('Employees')->detail($identifier);
+        if (!$identifier) {
+            return null;
+        }
+        $user = ($identifier == 1) ? ['is_superadmin' => true,'_id' => 1] : \Microservices::Hr('Employees')->detail($identifier);
         $class = $this->model;
         return new $class($user);
     }

@@ -18,21 +18,25 @@ class KeycloakCan extends KeycloakAuthenticated
      */
     public function handle($request, Closure $next, ...$guards)
     {
-        $allowed_permissions = KeycloakWeb::getPermissionUser(); /// khong duoc cap quyen j
-        $is_superadmin = (!empty($allowed_permissions['is_superadmin'])) ? true : false;
-        \Auth::user()->is_superadmin = $is_superadmin;
-        if ($is_superadmin) {
+        
+        $user = \Auth::user();
+        if (!$user->is_superadmin) {
+            $allowed_permissions = KeycloakWeb::getPermissionUser(); /// khong duoc cap quyen j
+            $is_superadmin = (!empty($allowed_permissions['is_superadmin'])) ? true : false;
+            $user->is_superadmin = $is_superadmin;
+        }
+        if ($user->is_superadmin) {
             return $next($request);
         }
         if (empty($allowed_permissions['permission'])) {
-            if($request->ajax()){
+            if(request()->expectsJson()){
                 return response(['error' => '403', 'error_description' => 'Không đủ quyền truy cập vào tài nguyên này'], 403);
             }
             else {
                 abort(403);
             }
         }
-        
+
          //router name
          $current_nameas = \Request::route()->getName();
         foreach($allowed_permissions['permission'] as $k => $permission) {
@@ -45,11 +49,11 @@ class KeycloakCan extends KeycloakAuthenticated
                 $allowed_permissions['permission'][$k] = $permission;
             }
         }
-        \Auth::user()->permissions = $allowed_permissions['permission'];
+        $user->permissions = $allowed_permissions['permission'];
         if(\Gate::allows($current_nameas)){
             return $next($request);
         }
-        if($request->ajax()){
+        if(request()->expectsJson()){
             return response(['error' => '403', 'error_description' => 'Không đủ quyền truy cập vào tài nguyên này'], 403);
         }
         else {
