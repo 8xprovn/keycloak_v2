@@ -62,12 +62,6 @@ class KeycloakServiceProvider extends ServiceProvider
             $provider = Auth::createUserProvider($config['provider']);
             return new KeycloakWebGuard($provider, $app->request);
         });
-        Auth::extend('keycloak-token', function ($app, $name, array $config) {
-            
-            $provider = Auth::createUserProvider($config['provider']);
-            return new KeycloakApiGuard($provider, $app->request);
-        });
-
         // Facades
         $this->app->bind('keycloak-web', function($app) {
             return $app->make(KeycloakService::class);
