@@ -30,12 +30,12 @@ class KeycloakServiceProvider extends ServiceProvider
         \Gate::guessPolicyNamesUsing(function ($modelClass) {
             return 'App\\Policies\\' . $modelClass . 'Policy';
         });
-        \Gate::before(function ($user) {
-            //return true;
-            if($user->is_superadmin){
-                return true;
-            }
-        });
+        // \Gate::before(function ($user) {
+        //     //return true;
+        //     if($user->is_superadmin){
+        //         return true;
+        //     }
+        // });
         \Gate::before(function ($user,$ability) {
             //return true;
             if($user->is_superadmin){
