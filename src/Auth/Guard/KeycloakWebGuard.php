@@ -42,7 +42,7 @@ class KeycloakWebGuard
      */
     public function check()
     {
-        return (bool) $this->user();
+        return (bool) $this->id();
     }
 
     /**
@@ -68,16 +68,8 @@ class KeycloakWebGuard
         if (! is_null($this->user)) {
             return $this->user;
         }
-        $token = $this->request->bearerToken() ?? $this->request->cookie($this->cookePrefix . 'access_token');
-        if (!$token) {
-            return null;
-        }
-        // decode token
-        $tokenDecode = KeycloakWeb::parseAccessToken($token);
-        if (!$tokenDecode || empty($tokenDecode['sub'])) {
-            return null;
-        }
-        $this->user = $this->provider->retrieveById($tokenDecode['sub']);
+        $userId = $this->id();
+        $this->user = $this->provider->retrieveById($userId);
         return $this->user;
     }
     public function loginUsingAccessToken() {
@@ -112,7 +104,16 @@ class KeycloakWebGuard
         if ($this->loggedOut) {
             return;
         }
-        return $this->user()->getAuthIdentifier();
+        $token = $this->request->bearerToken() ?? $this->request->cookie($this->cookePrefix . 'access_token');
+        if (!$token) {
+            return null;
+        }
+        // decode token
+        $tokenDecode = KeycloakWeb::parseAccessToken($token);
+        if (!$tokenDecode || empty($tokenDecode['sub'])) {
+            return null;
+        }
+        return $tokenDecode['sub'];
     }
 
     /**
