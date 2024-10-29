@@ -196,8 +196,7 @@ class KeycloakService
         }
         return [];
     }
-    public function getPermissionUser() {
-        $user = \Auth::user();
+    public function getPermissionUser($user) {
         return \Microservices::Authorization('EmployeeToRole')->employee(['service' => config('app.service_code'),'group' => 'admin','user_id' => $user->_id,'department_id' => $user->department_id]);
     }
     /**

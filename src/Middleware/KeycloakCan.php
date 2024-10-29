@@ -18,46 +18,52 @@ class KeycloakCan extends KeycloakAuthenticated
      */
     public function handle($request, Closure $next, ...$guards)
     {
-        
-        $user = \Auth::user();
-        if (!$user->is_superadmin) {
-            $allowed_permissions = KeycloakWeb::getPermissionUser(); /// khong duoc cap quyen j
+        try{
+            $message = 'Không đủ quyền truy cập vào tài nguyên này';
+            $user = \Auth::user();
+            /// TOKEN ADMIN ///
+            if ($user->is_superadmin) {
+                return $next($request);
+            }
+            $allowed_permissions = KeycloakWeb::getPermissionUser($user); /// khong duoc cap quyen j
+            if (!$allowed_permissions) {
+                throw new \Exception('Không lấy được thông tin về quyền truy cập');
+            }
+
             $is_superadmin = (!empty($allowed_permissions['is_superadmin'])) ? true : false;
             $user->is_superadmin = $is_superadmin;
-        }
-        if ($user->is_superadmin) {
+            if ($is_superadmin) {
+                return $next($request);
+            }
+            
+            if (empty($allowed_permissions['permission'])) {
+                throw new \Exception($message);
+            }
+
+            //router name
+            $current_nameas = \Request::route()->getName();
+            foreach($allowed_permissions['permission'] as $k => $permission) {
+                if (strpos($permission,':') !== false){
+                    $arrPermission = explode(':',$permission);
+                    $permission = $arrPermission[0];
+                    if ($current_nameas == $permission) {
+                        $request->headers->set('erp-authorization-policy', $arrPermission[1]);
+                    }
+                    $allowed_permissions['permission'][$k] = $permission;
+                }
+            }
+            $user->permissions = $allowed_permissions['permission'];
+            if(\Gate::allows($current_nameas)){
+                throw new \Exception($message);
+            }
             return $next($request);
-        }
-        if (empty($allowed_permissions['permission'])) {
+        }catch(\Throwable $e){
             if(request()->expectsJson()){
-                return response(['error' => '403', 'error_description' => 'Không đủ quyền truy cập vào tài nguyên này'], 403);
+                return response(['error' => '403', 'error_description' => $e->getMessage()], 403);
             }
             else {
                 abort(403);
             }
-        }
-
-         //router name
-         $current_nameas = \Request::route()->getName();
-        foreach($allowed_permissions['permission'] as $k => $permission) {
-            if (strpos($permission,':') !== false){
-                $arrPermission = explode(':',$permission);
-                $permission = $arrPermission[0];
-                if ($current_nameas == $permission) {
-                    $request->headers->set('erp-authorization-policy', $arrPermission[1]);
-                }
-                $allowed_permissions['permission'][$k] = $permission;
-            }
-        }
-        $user->permissions = $allowed_permissions['permission'];
-        if(\Gate::allows($current_nameas)){
-            return $next($request);
-        }
-        if(request()->expectsJson()){
-            return response(['error' => '403', 'error_description' => 'Không đủ quyền truy cập vào tài nguyên này'], 403);
-        }
-        else {
-            abort(403);
         }
     }
 }
