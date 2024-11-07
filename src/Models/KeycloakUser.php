@@ -117,7 +117,15 @@ class KeycloakUser implements Authenticatable
     {
         throw new \BadMethodCallException('Unexpected method [getAuthPassword] call');
     }
-
+    /**
+     * Get the password name.
+     *
+     * @return string
+     * @codeCoverageIgnore
+     */
+    public function getAuthPasswordName() {
+        return 'password'; 
+    }
     /**
      * Get the token value for the "remember me" session.
      *
