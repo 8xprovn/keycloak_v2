@@ -44,11 +44,7 @@ class KeycloakUser implements Authenticatable
      */
     public function __construct(array $profile)
     {
-        foreach ($profile as $key => $value) {
-            if (in_array($key, $this->fillable)) {
-                $this->attributes[ $key ] = $value;
-            }
-        }
+        $this->setAttributes($profile);
         $this->id = $this->getKey();
     }
 
@@ -62,7 +58,17 @@ class KeycloakUser implements Authenticatable
     {
         return $this->attributes[ $name ] ?? null;
     }
-
+    public function setAttributes($name, $value = '') {
+        if (!is_array($name)) {
+            $name = [$name => $value];
+        }
+        foreach ($name as $key => $value) {
+            if (in_array($key, $this->fillable)) {
+                $this->attributes[ $key ] = $value;
+            }
+        }
+        return $this->attributes[ $key ] = $value;
+    }
     /**
      * Get the value of the model's primary key.
      *

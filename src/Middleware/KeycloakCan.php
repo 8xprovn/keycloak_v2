@@ -31,7 +31,7 @@ class KeycloakCan extends KeycloakAuthenticated
             }
 
             $is_superadmin = (!empty($allowed_permissions['is_superadmin'])) ? true : false;
-            $user->is_superadmin = $is_superadmin;
+            $user->setAttributes(['is_superadmin' => $is_superadmin]);
             if ($is_superadmin) {
                 return $next($request);
             }
