@@ -69,7 +69,6 @@ class KeycloakServiceProvider extends ServiceProvider
 
         // Routes
         $this->registerRoutes();
-        $this->app['router']->aliasMiddleware('keycloak-api-can', KeycloakApiCan::class);
         $this->app['router']->aliasMiddleware('keycloak-web-can', KeycloakCan::class);
 
         // Interfaces
