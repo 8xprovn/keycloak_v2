@@ -197,7 +197,7 @@ class KeycloakService
         return [];
     }
     public function getPermissionUser($user) {
-        return \Microservices::Authorization('EmployeeToRole')->all(['service' => config('app.service_code'),'user_id' => $user->_id,'department_id' => $user->department_id]);
+        return \Microservices::Authorization('EmployeeToRole')->getAllPermission(['service' => config('app.service_code'),'user_id' => $user->_id,'department_id' => $user->department_id]);
     }
     /**
      * Get Access Token data
