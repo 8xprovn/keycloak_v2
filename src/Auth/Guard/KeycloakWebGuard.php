@@ -16,6 +16,7 @@ class KeycloakWebGuard
      */
     protected $user;
     protected $user_id;
+    protected $id;
     protected $provider;
     protected $request;
     /**
@@ -104,6 +105,9 @@ class KeycloakWebGuard
         if ($this->loggedOut) {
             return;
         }
+        if (! is_null($this->id)) {
+            return $this->id;
+        }
         $token = $this->request->bearerToken() ?? $this->request->cookie($this->cookePrefix . 'access_token');
         if (!$token) {
             return null;
@@ -113,6 +117,7 @@ class KeycloakWebGuard
         if (!$tokenDecode || empty($tokenDecode['sub'])) {
             return null;
         }
+        $this->id = $tokenDecode['sub'];
         return $tokenDecode['sub'];
     }
 
