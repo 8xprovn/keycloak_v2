@@ -146,7 +146,7 @@ class KeycloakWebGuard
             return false;
         }
         $token = KeycloakWeb::parseAccessToken($credentials['access_token']);
-        if (!$token && !$token['sub']) {
+        if (!$token || empty($token['sub'])) {
             return false;
         }
         if (! is_null($user = $this->provider->retrieveById($token['sub']))) {
