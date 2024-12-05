@@ -52,7 +52,7 @@ class KeycloakCan extends KeycloakAuthenticated
                     $allowed_permissions['permission'][$k] = $permission;
                 }
             }
-            $user->permissions = $allowed_permissions['permission'];
+            $user->setAttributes(['permissions' => $allowed_permissions['permission']]);
             if(!Gate::allows($current_nameas)){
                 throw new \Exception($message);
             }
