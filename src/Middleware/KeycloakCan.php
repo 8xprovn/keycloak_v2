@@ -5,7 +5,7 @@ namespace Keycloak\Middleware;
 use Closure;
 use Illuminate\Support\Facades\Auth;
 use Keycloak\Facades\KeycloakWeb;
-
+use Illuminate\Support\Facades\Gate;
 class KeycloakCan extends KeycloakAuthenticated
 {
     /**
@@ -20,7 +20,7 @@ class KeycloakCan extends KeycloakAuthenticated
     {
         try{
             $message = 'Không đủ quyền truy cập vào tài nguyên này';
-            $user = \Auth::user();
+            $user = Auth::user();
             /// TOKEN ADMIN ///
             if ($user->is_superadmin) {
                 return $next($request);
@@ -41,7 +41,7 @@ class KeycloakCan extends KeycloakAuthenticated
             }
 
             //router name
-            $current_nameas = \Request::route()->getName();
+            $current_nameas = $request->route()->getName();
             foreach($allowed_permissions['permission'] as $k => $permission) {
                 if (strpos($permission,':') !== false){
                     $arrPermission = explode(':',$permission);
@@ -53,7 +53,7 @@ class KeycloakCan extends KeycloakAuthenticated
                 }
             }
             $user->permissions = $allowed_permissions['permission'];
-            if(\Gate::allows($current_nameas)){
+            if(!Gate::allows($current_nameas)){
                 throw new \Exception($message);
             }
             return $next($request);
