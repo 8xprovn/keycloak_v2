@@ -212,7 +212,7 @@ class KeycloakService
         }
         $public_key = env('KEYCLOAK_REALM_PUBLIC_KEY');
         try {
-            JWT::$leeway = 10;
+            JWT::$leeway = 60;
             return (array)JWT::decode($token, new Key($public_key, 'RS256'));
         }catch (Exception $e) {
              return [];
