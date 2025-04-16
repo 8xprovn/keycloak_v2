@@ -25,6 +25,27 @@ class KeycloakCan extends KeycloakAuthenticated
             if ($user->is_superadmin) {
                 return $next($request);
             }
+            if ($user->is_guest) {
+                // Lấy tên route hoặc controller action (action_name)
+                $actionName = $request->route()->getActionName();  // ví dụ: 'PostController@show'
+                // Loại bỏ phần namespace (ví dụ: App\Http\Controllers\Api\InvoicesController)
+                $actionName = class_basename($actionName);
+
+                // Lấy tên controller từ actionName
+                list($controller, $method) = explode('@', $actionName);
+                
+                // Chuyển đổi tên controller thành model (theo convention)
+                $modelName = "Guest\\".str_replace('Controller', '', $controller);
+                // Kiểm tra nếu có policy cho model (hoặc action)
+                $policyClass = Gate::getPolicyFor($modelName);
+
+                if ($policyClass && method_exists($policyClass, $method)) {
+                    if (!$policyClass->{$method}($user)) {
+                        abort(403, 'Denied by policy.');
+                    }
+                    return $next($request);
+                }
+            }
             $allowed_permissions = KeycloakWeb::getPermissionUser($user); /// khong duoc cap quyen j
             if (!$allowed_permissions) {
                 throw new \Exception('Không lấy được thông tin về quyền truy cập');
