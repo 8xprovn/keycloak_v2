@@ -25,6 +25,9 @@ class KeycloakCan extends KeycloakAuthenticated
             if ($user->is_superadmin) {
                 return $next($request);
             }
+            if (!$user->department_id) {
+                throw new \Exception('Bạn chưa được cập nhật phòng ban làm việc. Vui lòng liên hệ bộ phận nhân sự để được hỗ trợ');
+            }
             $allowed_permissions = KeycloakWeb::getPermissionUser($user); /// khong duoc cap quyen j
             if (!$allowed_permissions) {
                 throw new \Exception('Không lấy được thông tin về quyền truy cập');
