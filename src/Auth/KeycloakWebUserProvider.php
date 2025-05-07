@@ -49,7 +49,17 @@ class KeycloakWebUserProvider implements UserProvider
         if (!$identifier) {
             return null;
         }
-        $user = ($identifier == 1) ? ['is_superadmin' => true,'_id' => 1] : \Microservices::Hr('Employees')->detail($identifier);
+        switch($identifier){
+            case 1:
+                $user = ['is_superadmin' => true,'_id' => 1];
+                break;
+            case 2:
+                $user = ['is_guest' => true, '_id' => 2];
+                break;
+            default:
+                $user = \Microservices::Hr('Employees')->detail($identifier);
+                break;
+        }
         $class = $this->model;
         return new $class($user);
     }
