@@ -27,7 +27,8 @@ class KeycloakUser implements Authenticatable
         'brand_id',
         'avatar',
         'subordinates',
-        'is_superadmin'
+        'is_superadmin',
+        'is_guest'
     ];
     protected $id;
     /**
