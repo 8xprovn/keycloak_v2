@@ -21,7 +21,7 @@ class KeycloakWebUserProvider implements UserProvider
      */
     public function __construct($model)
     {
-        $this->model = '\\'.ltrim($model, '\\');
+        $this->model = '\\' . ltrim($model, '\\');
     }
 
     /**
@@ -49,12 +49,19 @@ class KeycloakWebUserProvider implements UserProvider
         if (!$identifier) {
             return null;
         }
-        switch($identifier){
+        switch ($identifier) {
             case 1:
-                $user = ['is_superadmin' => true,'_id' => 1];
+                $user = ['is_superadmin' => true, '_id' => 1];
                 break;
             default:
-                $user = \Microservices::Hr('Employees')->detail($identifier);
+                $service = config('app.service_code');
+                if ($service === 'erp_hr_backend_v2') {
+                    $model = \App::make(\App\Models\Hr\Employee::class);
+                    $user = $model->detail($identifier);
+                } else {
+                    $user = \Microservices::Hr('Employees')->detail($identifier);
+                }
+
                 break;
         }
         // $user = ($identifier == 1) ? ['is_superadmin' => true,'_id' => 1] : \Microservices::Hr('Employees')->detail($identifier);
