@@ -8,6 +8,7 @@ use Keycloak\Models\KeycloakUser;
 use Keycloak\Facades\KeycloakWeb;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Support\Facades\Cookie;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 class KeycloakWebGuard
 {
@@ -46,23 +47,22 @@ class KeycloakWebGuard
     {
         return (bool) $this->id();
     }
+ 
 
-    public function basic()
-    { 
-        // Nếu đã có user (keycloak) thì cho qua
+    public function basic($field = 'email', $extraConditions = [])
+    {
         if ($this->check()) {
-            return null;
+            return;
         }
 
-        // Đúng user/pass ENV -> cho qua
+        // If a username is set on the HTTP basic request, we will return out without
+        // interrupting the request lifecycle. Otherwise, we'll need to generate a
+        // request indicating that the given credentials were invalid for login.
         if ($this->verifyBasicEnv()) {
-            return null; // SUCCESS
+            return; // SUCCESS
         }
 
-        // Sai / thiếu header -> phải trả Response 401 (truthy) để CHẶN
-        return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 401, [
-            'WWW-Authenticate' => 'Basic realm="Access Restricted"',
-        ]);
+        return  throw new UnauthorizedHttpException('Basic', 'Invalid credentials.');
     }
 
     public function verifyBasicEnv(): bool
