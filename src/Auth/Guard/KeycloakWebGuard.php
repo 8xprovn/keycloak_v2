@@ -47,38 +47,45 @@ class KeycloakWebGuard
         return (bool) $this->id();
     }
 
-    /**
-     * Determine if the current user is a basic.
-     *
-     * @return bool
-     */
     public function basic()
-    {
-        return $this->verifyBasicEnv();
-    }
-
-    public function verifyBasicEnv()
-    {
-        $header = request()->header('Authorization');
-
-        if (!$header || stripos($header, 'Basic ') !== 0) {
-            return response('Unauthorized', 401, ['WWW-Authenticate' => 'Basic realm="Access Restricted"']);
+    { 
+        // Nếu đã có user (keycloak) thì cho qua
+        if ($this->check()) {
+            return null;
         }
 
-        // Giải mã base64 từ header Authorization
-        $decoded = base64_decode(substr($header, 6));
+        // Đúng user/pass ENV -> cho qua
+        if ($this->verifyBasicEnv()) {
+            return null; // SUCCESS
+        }
+
+        // Sai / thiếu header -> phải trả Response 401 (truthy) để CHẶN
+        return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 401, [
+            'WWW-Authenticate' => 'Basic realm="Access Restricted"',
+        ]);
+    }
+
+    public function verifyBasicEnv(): bool
+    {
+        $header = $this->request->header('Authorization'); // dùng $this->request cho nhất quán
+
+        if (!$header || stripos($header, 'Basic ') !== 0) {
+            return false;
+        }
+
+        $decoded = base64_decode(substr($header, 6), true);
+        if ($decoded === false) {
+            return false;
+        }
+
         [$username, $password] = array_pad(explode(':', $decoded, 2), 2, null);
 
         $envUser = env('BASIC_AUTH_USER');
         $envPass = env('BASIC_AUTH_PASS');
 
-        // Kiểm tra username và password
-        if ($username !== $envUser || $password !== $envPass) {
-            return response('Unauthorized', 401, ['WWW-Authenticate' => 'Basic realm="Access Restricted"']);
-        }
-
-        // Nếu đúng thì cho phép truy cập
-        return true;
+        return ($username !== null && $password !== null &&
+            hash_equals((string)$envUser, (string)$username) &&
+            hash_equals((string)$envPass, (string)$password));
     }
 
     /**
