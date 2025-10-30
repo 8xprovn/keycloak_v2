@@ -8,6 +8,7 @@ use Keycloak\Models\KeycloakUser;
 use Keycloak\Facades\KeycloakWeb;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Support\Facades\Cookie;
+
 class KeycloakWebGuard
 {
     protected $cookePrefix = 'imap_authen_';
@@ -47,6 +48,40 @@ class KeycloakWebGuard
     }
 
     /**
+     * Determine if the current user is a basic.
+     *
+     * @return bool
+     */
+    public function basic()
+    {
+        return $this->verifyBasicEnv();
+    }
+
+    public function verifyBasicEnv()
+    {
+        $header = request()->header('Authorization');
+
+        if (!$header || stripos($header, 'Basic ') !== 0) {
+            return response('Unauthorized', 401, ['WWW-Authenticate' => 'Basic realm="Access Restricted"']);
+        }
+
+        // Giải mã base64 từ header Authorization
+        $decoded = base64_decode(substr($header, 6));
+        [$username, $password] = array_pad(explode(':', $decoded, 2), 2, null);
+
+        $envUser = env('BASIC_AUTH_USER');
+        $envPass = env('BASIC_AUTH_PASS');
+
+        // Kiểm tra username và password
+        if ($username !== $envUser || $password !== $envPass) {
+            return response('Unauthorized', 401, ['WWW-Authenticate' => 'Basic realm="Access Restricted"']);
+        }
+
+        // Nếu đúng thì cho phép truy cập
+        return true;
+    }
+
+    /**
      * Determine if the current user is a guest.
      *
      * @return bool
@@ -73,7 +108,8 @@ class KeycloakWebGuard
         $this->user = $this->provider->retrieveById($userId);
         return $this->user;
     }
-    public function loginUsingAccessToken() {
+    public function loginUsingAccessToken()
+    {
         $cookie = $this->request->cookie($this->cookePrefix . 'refresh_token');
         if (!$cookie) {
             return false;
@@ -141,8 +177,9 @@ class KeycloakWebGuard
     //     }
     //     return false;
     // }
-    public function login(Authenticatable $user, $remember = false) {
-        
+    public function login(Authenticatable $user, $remember = false)
+    {
+
         $this->setUser($user);
     }
     public function loginUsingToken($credentials)
@@ -156,15 +193,16 @@ class KeycloakWebGuard
         }
         if (! is_null($user = $this->provider->retrieveById($token['sub']))) {
             $this->login($user);
-            Cookie::queue($this->cookePrefix .'access_token', $credentials['access_token'], 1440, null, null, true, false);
-            Cookie::queue($this->cookePrefix .'refresh_token', $credentials['refresh_token'], 8640, null, null, true, false);
+            Cookie::queue($this->cookePrefix . 'access_token', $credentials['access_token'], 1440, null, null, true, false);
+            Cookie::queue($this->cookePrefix . 'refresh_token', $credentials['refresh_token'], 8640, null, null, true, false);
             return $user;
         }
         return false;
     }
-    public function logout() {
-        Cookie::queue(Cookie::forget($this->cookePrefix .'refresh_token'));
-        Cookie::queue(Cookie::forget($this->cookePrefix .'access_token'));
+    public function logout()
+    {
+        Cookie::queue(Cookie::forget($this->cookePrefix . 'refresh_token'));
+        Cookie::queue(Cookie::forget($this->cookePrefix . 'access_token'));
         $this->loggedOut = true;
         $this->user = null;
     }
