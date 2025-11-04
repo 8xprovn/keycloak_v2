@@ -9,9 +9,11 @@ use Illuminate\Support\Facades\Config;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Exception;
+use Microservices\Traits\SafeHttpClient;
 
 class KeycloakService
 {
+    use SafeHttpClient;
     /**
      * Keycloak URL
      *
@@ -88,10 +90,10 @@ class KeycloakService
      *
      * @return string
      */
-    public function getLoginUrl($state='')
+    public function getLoginUrl($state = '')
     {
 
-        $url = $this->baseUrl.'/oauth/authorize';
+        $url = $this->baseUrl . '/oauth/authorize';
         $params = [
             'scope' => '',
             'client_id' => $this->clientId,
@@ -99,7 +101,7 @@ class KeycloakService
             'redirect_uri' => $this->callbackUrl,
             'state' => $state
         ];
-
+        
         return $this->buildUrl($url, $params);
     }
 
@@ -110,7 +112,7 @@ class KeycloakService
      */
     public function getLogoutUrl()
     {
-        $url = $url = $this->baseUrl.'/oauth/logout';
+        $url = $url = $this->baseUrl . '/oauth/logout';
 
         if (empty($this->redirectLogout)) {
             $this->redirectLogout = url('/');
@@ -139,7 +141,7 @@ class KeycloakService
      */
     public function getAccessToken($code)
     {
-        $url =  $this->baseUrl.'/oauth/token';
+        $url =  $this->baseUrl . '/oauth/token';
         $params = [
             'code' => $code,
             'client_id' => $this->clientId,
@@ -150,19 +152,8 @@ class KeycloakService
         if (! empty($this->clientSecret)) {
             $params['client_secret'] = $this->clientSecret;
         }
-
-        $token = [];
-        try {
-            $response = Http::acceptJson()->post($url, $params);
-            if ($response->successful()) {
-                // Xử lý và trả kết quả khi thành công
-                return $response->json(); // Hoặc $response->body() nếu bạn muốn lấy toàn bộ nội dung
-            } 
-            Log::info('[Keycloak Service: getAccessToken] ' . $response->body());
-        } catch (Exception $e) {
-            Log::error('[Keycloak Service: getAccessToken] ' . $e->getMessage());
-        }
-        return $token;
+        $resutl = $this->safePost($url, $params, ''); 
+        return !empty($resutl) ? $resutl : []; 
     }
 
     /**
@@ -173,7 +164,7 @@ class KeycloakService
      */
     public function refreshAccessToken($token)
     {
-        $url =  $this->baseUrl.'/oauth/token';
+        $url =  $this->baseUrl . '/oauth/token';
         $params = [
             'client_id' => $this->clientId,
             'grant_type' => 'refresh_token',
@@ -184,20 +175,13 @@ class KeycloakService
         if (! empty($this->clientSecret)) {
             $params['client_secret'] = $this->clientSecret;
         }
-        try {
-            $response = Http::acceptJson()->post($url, $params);
-            if ($response->successful()) {
-                // Xử lý và trả kết quả khi thành công
-                return $response->json(); // Hoặc $response->body() nếu bạn muốn lấy toàn bộ nội dung
-            } 
-            Log::info('[Keycloak Service: refreshAccessToken] ' . $response->body());
-        } catch (Exception $e) {
-            Log::error('[Keycloak Service: refreshAccessToken] ' . $e->getMessage());
-        }
-        return [];
+        $resutl = $this->safePost($url, $params, ''); 
+        return !empty($resutl) ? $resutl : [];
+       
     }
-    public function getPermissionUser($user) {
-        return \Microservices::Authorization('EmployeeToRole')->getAllPermission(['service' => config('app.service_code'),'user_id' => $user->_id,'department_id' => $user->department_id]);
+    public function getPermissionUser($user)
+    {
+        return \Microservices::Authorization('EmployeeToRole')->getAllPermission(['service' => config('app.service_code'), 'user_id' => $user->_id, 'department_id' => $user->department_id]);
     }
     /**
      * Get Access Token data
@@ -214,8 +198,8 @@ class KeycloakService
         try {
             JWT::$leeway = 60;
             return (array)JWT::decode($token, new Key($public_key, 'RS256'));
-        }catch (Exception $e) {
-             return [];
+        } catch (Exception $e) {
+            return [];
         }
     }
     /**
