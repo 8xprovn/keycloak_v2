@@ -9,6 +9,7 @@ use Illuminate\Support\ServiceProvider;
 use Keycloak\Auth\Guard\KeycloakWebGuard;
 use Keycloak\Auth\Guard\KeycloakApiGuard;
 use Keycloak\Auth\KeycloakWebUserProvider;
+use Keycloak\Middleware\CacheViewData;
 use Keycloak\Middleware\KeycloakCan;
 use Keycloak\Middleware\KeycloakApiCan;
 use Keycloak\Services\KeycloakService;
@@ -70,6 +71,7 @@ class KeycloakServiceProvider extends ServiceProvider
         // Routes
         $this->registerRoutes();
         $this->app['router']->aliasMiddleware('keycloak-web-can', KeycloakCan::class);
+        $this->app['router']->aliasMiddleware('cache.viewdata', CacheViewData::class);
 
         // Interfaces
         $this->app->bind(ClientInterface::class, Client::class);
