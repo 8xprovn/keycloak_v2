@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Cache;
 
 class ViewFragmentCache
 {
-    private $defaultTtl = 300;
+    private $defaultTtl = 180;
     private $hasUncacheableData = false;
 
     /**
