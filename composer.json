@@ -5,8 +5,11 @@
              "Keycloak\\": "src/"
          }
     },
+    "type": "library",
+    "description": "Internal Laravel Keycloak authentication package",
+    "license": "proprietary",
     "require": {
-        "firebase/php-jwt": "^6.10"
+        "firebase/php-jwt": "^7.10"
     },
     "extra": {
         "laravel": {
