@@ -9,7 +9,7 @@
     "description": "Internal Laravel Keycloak authentication package",
     "license": "proprietary",
     "require": {
-        "firebase/php-jwt": "^7.10"
+        "firebase/php-jwt": "^7.1.0"
     },
     "extra": {
         "laravel": {
